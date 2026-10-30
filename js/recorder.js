@@ -6,7 +6,11 @@ const audioDB = (() => {
   const open = () => dbp || (dbp = new Promise((resolve, reject) => {
     const req = indexedDB.open("pn-audio", 1);
     req.onupgradeneeded = () => req.result.createObjectStore("recs", { keyPath: "id" }).createIndex("noteId", "noteId");
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      // libera a conexão se outra aba precisar atualizar ou apagar o banco
+      req.result.onversionchange = () => { req.result.close(); dbp = null; };
+      resolve(req.result);
+    };
     req.onerror = () => { dbp = null; reject(req.error); };
   }));
   const run = async (mode, fn) => {

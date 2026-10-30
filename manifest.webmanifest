@@ -3,7 +3,7 @@
   "short_name": "Palavra & Notas",
   "description": "Bíblia bilíngue (Português/Inglês) offline e anotações de sermões e cultos.",
   "lang": "pt-BR",
-  "start_url": "./index.html#bible",
+  "start_url": "./index.html#notes",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

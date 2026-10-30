@@ -1,6 +1,6 @@
 // Service worker: app e textos bíblicos disponíveis offline.
 // Ao alterar arquivos do app, aumente a versão para os celulares receberem a atualização.
-const VERSION = "v3";
+const VERSION = "v4";
 const SHELL = `pn-shell-${VERSION}`;
 const DATA = "pn-data-v1"; // textos bíblicos (mudam raramente)
 
@@ -12,9 +12,11 @@ const DATA_FILES = ["data/bpm.json", "data/web.json"]; // padrão; data/blivre.j
 
 self.addEventListener("install", (e) => {
   e.waitUntil((async () => {
-    await (await caches.open(SHELL)).addAll(SHELL_FILES);
+    // cache: "reload" evita guardar uma cópia antiga que ainda esteja no cache HTTP do navegador
+    const fresh = (f) => new Request(f, { cache: "reload" });
+    await (await caches.open(SHELL)).addAll(SHELL_FILES.map(fresh));
     const data = await caches.open(DATA);
-    for (const f of DATA_FILES) if (!(await data.match(f))) await data.add(f).catch(() => {});
+    for (const f of DATA_FILES) if (!(await data.match(f))) await data.add(fresh(f)).catch(() => {});
     self.skipWaiting();
   })());
 });
