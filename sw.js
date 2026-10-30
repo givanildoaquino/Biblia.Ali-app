@@ -1,6 +1,6 @@
 // Service worker: app e textos bíblicos disponíveis offline.
 // Ao alterar arquivos do app, aumente a versão para os celulares receberem a atualização.
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL = `pn-shell-${VERSION}`;
 const DATA = "pn-data-v1"; // textos bíblicos (mudam raramente)
 

@@ -68,7 +68,7 @@
         <button class="icon-btn back" id="editor-back" aria-label="Voltar">‹</button>
         <h1 id="editor-title">Anotação</h1>
         <div class="topbar-actions">
-          <button class="chip" id="note-share">Compartilhar</button>
+          <button class="chip" id="note-share">Exportar</button>
           <button class="icon-btn danger" id="note-delete" aria-label="Excluir anotação" title="Excluir">
             <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
           </button>
@@ -111,6 +111,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" hidden></div>
+  <article id="print-area" aria-hidden="true"></article>
   <button class="rec-pill" id="rec-pill" hidden aria-label="Gravação em andamento — voltar para a anotação"><span class="rec-dot"></span><span data-rec-time>0:00</span> Gravando</button>
 
   <script src="js/books.js"></script>

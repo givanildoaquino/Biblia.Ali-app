@@ -737,8 +737,67 @@ $("#note-delete").onclick = () => {
   if (!isEmptyNote(note)) toast("Anotação excluída", { label: "Desfazer", run: () => { notes.splice(i, 0, note); saveNotes(); renderNotes(); } });
 };
 
-$("#note-share").onclick = async () => {
+$("#note-share").onclick = () => {
   const n = editing;
+  openSheet(`
+    <h3>Exportar anotação</h3>
+    <button class="list-btn" id="exp-pdf"><strong>PDF</strong><small>Layout para imprimir ou guardar, com os versículos em português e inglês</small></button>
+    <button class="list-btn" id="exp-text"><strong>Texto</strong><small>Para WhatsApp, e-mail ou outro app</small></button>
+    <p class="muted small">No PDF: na janela que abrir, escolha <b>Salvar como PDF</b> (Android) ou toque em <b>Compartilhar</b> (iPhone).</p>
+  `, (body) => {
+    $("#exp-pdf", body).onclick = () => { closeSheet(); exportPdf(n); };
+    $("#exp-text", body).onclick = () => { closeSheet(); shareNoteText(n); };
+  });
+};
+
+/* PDF: monta uma página de impressão e usa "Salvar como PDF" do sistema */
+const nl2br = (s) => esc(s).replace(/\n/g, "<br>");
+
+async function printPassage(s) {
+  const ref = parseRef(s);
+  if (!ref) return `<div class="p-ref"><h4>${esc(s)}</h4></div>`;
+  let vs = [];
+  try { vs = await getPassage(ref.v1 ? ref : { ...ref, v1: 1, v2: 3 }); } catch { /* sem texto */ }
+  const col = (lang) => vs.map((x) => `<p><sup>${x.v}</sup>${esc(x[lang])}</p>`).join("") + (ref.v1 ? "" : "<p class=\"p-more\">…</p>");
+  return `<div class="p-ref">
+    <h4>${esc(formatRef(ref))} <span>${esc(formatRef(ref, "en"))}</span></h4>
+    ${vs.length ? `<div class="p-cols"><div lang="pt">${col("pt")}</div><div lang="en">${col("en")}</div></div>` : ""}
+  </div>`;
+}
+
+async function buildPrintHtml(n) {
+  const base = n.textoBase && parseRef(n.textoBase) ? await printPassage(n.textoBase) : "";
+  const refs = (await Promise.all(n.refs.map(printPassage))).join("");
+  const meta = [n.pregador && `<span><b>Pregador(a)</b> ${esc(n.pregador)}</span>`, n.igreja && `<span><b>Local</b> ${esc(n.igreja)}</span>`].filter(Boolean).join("");
+  const block = (title, text, cls = "") => text ? `<section class="p-sec ${cls}"><h3>${title}</h3><p>${nl2br(text)}</p></section>` : "";
+  return `
+    <header class="p-head">
+      <div class="p-kicker">${esc(TIPOS[n.tipo])} · ${esc(fmtDate(n.data))}</div>
+      <h1>${esc(n.titulo || "Anotação")}</h1>
+      ${meta ? `<div class="p-meta">${meta}</div>` : ""}
+    </header>
+    ${base ? `<section class="p-sec p-base"><h3>Texto base</h3>${base}</section>` : (n.textoBase ? `<section class="p-sec"><h3>Texto base</h3><p>${esc(n.textoBase)}</p></section>` : "")}
+    ${n.topicos.length ? `<section class="p-sec"><h3>Tópicos da mensagem</h3><ol class="p-topics">${n.topicos.map((t) =>
+      `<li><p>${nl2br(t.texto)}</p>${t.audio && n.audios.includes(t.audio) ? `<span class="p-time">gravação ${fmtDur(t.t)}</span>` : ""}</li>`).join("")}</ol></section>` : ""}
+    ${refs ? `<section class="p-sec"><h3>Versículos citados</h3>${refs}</section>` : ""}
+    ${block("Anotações", n.anotacoes)}
+    ${block("Aplicação pessoal", n.aplicacao, "p-box")}
+    ${block("Pedidos de oração", n.oracao, "p-box p-pray")}
+    ${n.tags.length ? `<div class="p-tags">${n.tags.map((t) => `<span>${esc(t)}</span>`).join("")}</div>` : ""}
+    <footer class="p-foot">Palavra &amp; Notas · ${esc(VERSIONS[ptId()].name)} (${esc(VERSIONS[ptId()].short)}) · World English Bible (WEB)</footer>`;
+}
+
+async function exportPdf(n) {
+  const area = $("#print-area");
+  area.innerHTML = await buildPrintHtml(n);
+  const prevTitle = document.title;
+  // o título vira o nome sugerido do arquivo
+  document.title = `${n.titulo || "Anotação"} - ${n.data}`.replace(/[\\/:*?"<>|]+/g, "");
+  window.addEventListener("afterprint", () => setTimeout(() => { document.title = prevTitle; }, 1000), { once: true });
+  setTimeout(() => window.print(), 100);
+}
+
+async function shareNoteText(n) {
   const lines = [
     `${n.titulo || "Anotação"}`,
     `${TIPOS[n.tipo]} · ${fmtDate(n.data)}`,
@@ -755,7 +814,7 @@ $("#note-share").onclick = async () => {
     catch (e) { if (e.name === "AbortError") return; }
   }
   copyText(lines);
-};
+}
 
 /* ---------- Gravação de voz ---------- */
 const recUrls = [];

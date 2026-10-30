@@ -27,6 +27,7 @@ Acesse http://localhost:8765. Para testar no celular na mesma rede Wi-Fi, use o 
   toca o áudio a partir daquele momento. Áudios ficam no IndexedDB (~21 MB/hora); podem ser
   compartilhados/salvos como arquivo. Exige HTTPS e permissão de microfone; a tela fica ligada
   durante a gravação (Wake Lock), pois muitos celulares interrompem o microfone com a tela bloqueada.
+- **Exportar**: anotação em PDF (A4, versículos PT/EN lado a lado, tópicos numerados) via "Salvar como PDF" do sistema, ou como texto.
 - **Busca**: por referência ou palavra (sem diferenciar acentos) em PT, EN ou nas anotações.
 - **Ajustes**: versão PT, tamanho da letra, tema claro/escuro, backup (exportar/importar JSON).
 
