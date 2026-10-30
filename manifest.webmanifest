@@ -1,0 +1,17 @@
+{
+  "name": "Palavra & Notas — Bíblia bilíngue",
+  "short_name": "Palavra & Notas",
+  "description": "Bíblia bilíngue (Português/Inglês) offline e anotações de sermões e cultos.",
+  "lang": "pt-BR",
+  "start_url": "./index.html#bible",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f5f0",
+  "theme_color": "#1f3a5f",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
